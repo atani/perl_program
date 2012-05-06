@@ -10,7 +10,7 @@ my $file = shift;
 die "Usage: $0 FILE" unless $file;
 
 # ファイルのオープン
-open my $fh, '>', $file
+open my $fh, '<', $file
     or die qq{Can't open file "$file": $!};
 
 # 複数のCPUの情報を格納する配列リファレンス
