@@ -1,24 +1,30 @@
 #!/usr/bin/perl
-
 use strict;
 use warnings;
 use Geo::IP;
+use LWP::Simple;
 
-my $geo =  Geo::IP->open('./GeoLiteCity.dat',GEOIP_STANDARD);
-
-my $search_str = $ARGV[0];
-my ($loc, $from, $to);
-
-
-if ($search_str  =~ /^(\d|[01]?\d\d|2[0-4]\d|25[0-5])\.(\d|[01]?\d\d|2[0-4]\d|25[0-5])\.(\d|[01]?\d\d|2[0-4]\d|25[0-5])\.(\d|[01]?\d\d|2[0-4]\d|25[0-5])$/ )
-{
-    $loc = $geo->record_by_addr("$search_str") or die;
-    ($from, $to) = $geo->range_by_ip("$search_str");
-    print "Range        : " . $from . " - " . $to . "\n";
-
-} else {
-    $loc =  $geo->record_by_name("$search_str") or die;
+if (@ARGV != 1) {
+        print "Usage: geoip.pl <ipaddress|hostname>\n";
+        exit(1);
 }
-print "Country Code : " . $loc->country_name . "(" . $loc->country_code . ")\n";
+
+chomp(my $ip_host = $ARGV[0]);
+my $country;
+my $gi = Geo::IP->open('./GeoIP.dat');
+
+$country = $gi->country_code_by_addr($ip_host);
+
+$country ||= '';
+
+print $country . "\n";
+
+sub get_geoip {
+    my $geoip_file = get("http://geolite.maxmind.com/download/geoip/database/GeoLiteCountry/GeoIP.dat.gz");
+    open(FILE ,">GeoIP.dat.gz") or die("Cant Create");
+    eval{flock(FILE,2);};
+    print FILE $geoip_file;
+    close(FILE);
+}
 
 exit;
