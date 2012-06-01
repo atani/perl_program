@@ -4,6 +4,13 @@ use warnings;
 use Geo::IP;
 use LWP::Simple;
 
+my $file = "./GeoIP.dat.gz";
+
+# file check
+if ((!-e $file ) or ( (-M $file ) > 30 )){
+    &get_geoip;
+}
+
 if (@ARGV != 1) {
         print "Usage: geoip.pl <ipaddress|hostname>\n";
         exit(1);
